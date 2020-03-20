@@ -9,7 +9,7 @@ Eigen::Quaternionf quaternion_exp(Eigen::Quaternionf v) {
 	//       q = exp(v) = exp(theta*vhat) = [cos(theta), vhat*sin(theta)]
 	float theta = v.vec().norm();
 	Eigen::Vector3f vhat(1, 1, 1);
-	Eigen::Quaternionf q(cos(theta), vhat(0) * sin(theta), vhat(1) * sin(theta), vhat(2) * sin(theta));
+	Eigen::Quaternionf q(cos(theta/2), vhat(0) * sin(theta/2), vhat(1) * sin(theta/2), vhat(2) * sin(theta/2));
 	return q;
 }
 
@@ -82,7 +82,7 @@ void ofApp::setup(){
 		//       Note that axis has to be a unit vector.
 		//       Use quaternion_exp() function to convert the angle & axis to a unit quaternion
 		//       Note that the input to the exponential has to be "half" of the angle
-		float angle(ofRandom(2*PI));           // do something here
+		float angle(ofRandom(PI/4));           // do something here
 		Eigen::Vector3f axis(ofRandom(10), ofRandom(10), ofRandom(10));  // do something here
 		axis.normalize();
 
@@ -90,14 +90,14 @@ void ofApp::setup(){
 		Eigen::Quaternionf q = quaternion_exp(quaternion_log(q_)); // replace 'XXX' with an appropriate code
 
 		T1.block<3,3>(0,0) = q.toRotationMatrix();
+
 		transform(target, T1);
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	//Eigen::Matrix4f T = (1-t)*T0 + t*T1;   // TODO: Replace this line with quaternion interpolation.
-	Eigen::Matrix4f T = (1 - t) * T0 + t * T1;   // TODO: Replace this line with quaternion interpolation.
+	Eigen::Matrix4f T = (T0 * sin((1 - t) * PI / 2) + T1 * sin(t * PI / 2)) / sin(PI / 2);;   // TODO: Replace this line with quaternion interpolation.
 	interp = mesh;
 	transform(interp, T);
 }
